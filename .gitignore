@@ -1,0 +1,11 @@
+*.so
+*.o
+*.pyc
+*~
+prueba*
+nohup*
+data*
+*txt
+*.dat
+*.png
+env/*

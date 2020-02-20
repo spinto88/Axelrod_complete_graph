@@ -2,14 +2,13 @@
 
 void evolution(axl_network *mysys)
 {
-	int i, j, k, l, r;	
+	int i, j, k, lo, lz, r;	
 	int step_n;
         double h_ab, random;
 	int n_active_links;
-	int links_zero = 0;
-	int links_ones = 0;
 	active_link *active_links;
-	int *list_ones;
+	int *list_ones, *list_zero;
+	int links_ones, links_zero;
 	FILE *fp;
 
 	/* Set the random seed */
@@ -51,27 +50,37 @@ void evolution(axl_network *mysys)
 		/* If the interaction takes place, go into the next if */
 	 	if((random < h_ab) && (active_condition(mysys->agent[i], mysys->agent[j])))
 		{
+			mysys->links_destroyed = 0;
+			mysys->links_created = 0;
+
 			links_ones = 0;
+			links_zero = 0;
 			for(k = 0; k < mysys->nagents; k++)
 			{
-				if((homophily(mysys->agent[i], mysys->agent[k]) == (1./mysys->agent[i].f)) && (k != j))
-					links_ones++;
+				if(homophily(mysys->agent[i], mysys->agent[k]) == 1.0/mysys->agent[i].f)
+					links_ones++;	
+				if(homophily(mysys->agent[i], mysys->agent[k]) == 0.00)
+					links_zero++;	
 			}
 
-			if(links_ones != 0)
+			list_ones = (int *)malloc(sizeof(int) * links_ones);
+			list_zero = (int *)malloc(sizeof(int) * links_zero);
+
+			lo = 0;
+			lz = 0;
+			for(k = 0; k < mysys->nagents; k++)
 			{
-				l = 0;
-				list_ones = (int *)malloc(sizeof(int) * links_ones);			
-				for(k = 0; k < mysys->nagents; k++)
+				if(homophily(mysys->agent[i], mysys->agent[k]) == 1.0/mysys->agent[i].f)
 				{
-					if((homophily(mysys->agent[i], mysys->agent[k]) == (1./mysys->agent[i].f))  && (k != j))
-					{
-						list_ones[l] = k;
-						l++;
-					}
+					list_ones[lo] = k;
+					lo++;	
+				}
+				else if(homophily(mysys->agent[i], mysys->agent[k]) == 0.00)
+				{
+					list_zero[lz] = k;
+					lz++;	
 				}
 			}
-					
 			/* Take a random feature */
 			r = rand() % mysys->agent[i].f;
 
@@ -82,20 +91,23 @@ void evolution(axl_network *mysys)
 			/* Agent i copies a feature from agent j */
 			mysys->agent[i].feat[r] = mysys->agent[j].feat[r];
 
-			if(links_ones != 0)
+			for(k = 0; k < links_ones; k++)
 			{
-				links_zero = 0;
-				for(l = 0; l < links_ones; l++)
-				{
-					if(homophily(mysys->agent[i], mysys->agent[list_ones[l]]) == 0.00)
-						links_zero += 1;
-				}
-
-				fp = fopen("Links_zero.dat","a");
-				fprintf(fp, "%f\n", ((float)links_zero)/links_ones);
-				fclose(fp);
-				free(list_ones);
+				if(homophily(mysys->agent[i], mysys->agent[list_ones[k]]) == 0.00)
+					mysys->links_destroyed++;
 			}
+			for(k = 0; k < links_zero; k++)
+			{
+				if(homophily(mysys->agent[i], mysys->agent[list_zero[k]]) == 1.0/mysys->agent[i].f)
+					mysys->links_created++;
+			}
+
+			fp = fopen("Links_created_destroyed","a");
+			fprintf(fp, "%d,%d\n", mysys->links_created, mysys->links_destroyed);
+			fclose(fp);
+
+			free(list_ones);
+			free(list_zero);
 		}
 
 		mysys->seed = rand();

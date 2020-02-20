@@ -7,7 +7,7 @@ from axl_agent import *
 
 libc = C.CDLL(os.getcwd() + '/axelrod_py/libc.so')
 
-class Axl_network(C.Structure):
+class Axl_network(nx.Graph, C.Structure):
 
     """
     Axelrod network: it has nagents axelrod agents, and an amount of noise in the dynamics of the system. This class inherites from the networkx.Graph the way to be described.
@@ -18,12 +18,14 @@ class Axl_network(C.Structure):
 		('links_created', C.c_int),
 		('links_destroyed', C.c_int)]
 
-    def __init__(self, n, f, q):
+    def __init__(self, n, f, q, topology = 'complete', **kwargs):
         
 	"""
         Constructor: initializes the network.Graph first, and set the topology and the agents' states. 
 	"""
         # Init graph properties
+        nx.Graph.__init__(self)
+        nx.empty_graph(n, self)
         self.nagents = n
 
         # Model parameters
@@ -33,11 +35,31 @@ class Axl_network(C.Structure):
         # Init agents' states
         self.init_agents(f, q)
  
+        # Init topology
+        self.set_topology(topology, **kwargs)
+
 	# Random seed 
 	self.seed = rand.randint(0, 10000)
 
-        self.links_created = 0
-        self.links_destroyed = 0
+	self.links_created = 0
+	self.links_destroyed = 0
+	self.physical_links_created = 0
+	self.physical_links_destroyed = 0
+
+    def set_topology(self, topology, **kwargs):
+        """
+        Set the network's topology
+        """
+        import set_topology as setop
+
+        self.id_topology = topology
+
+        setop.set_topology(self, topology, **kwargs)
+
+        for i in range(self.nagents):
+
+            self.agent[i].degree = self.degree(i)
+            self.agent[i].neighbors = (C.c_int * self.degree(i))(*self.neighbors(i))
 
     def init_agents(self, f, q):
         """
@@ -47,14 +69,11 @@ class Axl_network(C.Structure):
     
         for i in range(self.nagents):
             self.agent[i] = Axl_agent(f, q)
-
+    
     def re_init_agents(self, f, q):
 
         for i in range(self.nagents):
             self.agent[i].__init__(f,q)
-
-        self.f = f
-        self.q = q
 
     def evolution(self, steps = 1):
         """
@@ -159,6 +178,20 @@ class Axl_network(C.Structure):
                        for i in range(self.nagents) for j in range(i+1, self.nagents)]
 
         return np.mean(homophilies)
+
+    def hom_different_to_zero(self):
+
+        homophilies = np.array([1 if self.agent[i].homophily(self.agent[j]) > 0.00 \
+		else 0 for i in range(self.nagents) for j in range(i+1, self.nagents)], dtype = np.int)
+
+        return np.count_nonzero(homophilies)
+
+    def physical_different_to_zero(self):
+
+        homophilies = np.array([1 if self.agent[i].homophily(self.agent[j]) > 0.00 \
+		else 0 for i in range(self.nagents) for j in self.neighbors(i)], dtype = np.int)
+
+        return np.count_nonzero(homophilies)
 
     def save_fragments_distribution(self, fname):
 

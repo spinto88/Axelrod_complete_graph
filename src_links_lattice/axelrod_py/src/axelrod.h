@@ -16,8 +16,8 @@ struct _axl_agent
 	int f; /* Number of features.*/
 	int q; /* Number of traits per feature.*/
 	int *feat; /*!< Cutural vector with f components.*/
-	//int degree; /* Node degree */
-	//int *neighbors; /* List of neighbors which are contact links */
+	int degree; /* Node degree */
+	int *neighbors; /* List of neighbors which are contact links */
 	int label; /* Label useful for the fragment identifier */
 };
 typedef struct _axl_agent axl_agent; /*!< struct _axl_agent redefined as axl_agent. */

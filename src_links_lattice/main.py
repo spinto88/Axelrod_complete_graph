@@ -2,21 +2,20 @@ from axelrod_py import *
 import ast
 import os
 
-N = 100
+N = 225
 F = 10
 
 np.random.seed(123454)
 
-k2q = lambda x, N, f: int(-f*(np.log(1.00 - float(x)/N)**(-1)))
+k2q = lambda x, f: int((1.00 - (1.00 - x)**(1./f))**(-1))
 
-k = 2.00
-q = k2q(k, N, F)
+p = 0.20
 
 for F in [5, 10, 25, 50, 100]:
 
-    q = k2q(k, N, F)
-    for i in range(10):
-        mysys = Axl_network(n = N, f = F, q = q)
+    q = k2q(p, F)
+    for i in range(25):
+        mysys = Axl_network(n = N, f = F, q = q, topology = 'lattice')
         mysys.evol2convergence()
 
 	fp = open("Links_created_destroyed", "r").readlines()

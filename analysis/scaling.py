@@ -75,6 +75,7 @@ plt.grid(True, alpha = 0.15)
 plt.savefig('images/pcN2_F{}.png'.format(F), dpi = 300)
 
 plt.show()
+exit()
 
 ### Linear fit Biggest Fragment
 

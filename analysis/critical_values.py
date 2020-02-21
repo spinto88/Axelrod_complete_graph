@@ -60,38 +60,38 @@ def average_fragment(fName):
 import numpy as np
 import pandas as pd
 
-data2save = []
-F = 1000
+for F in [10, 25, 50, 100, 250, 1000]:
 
-for N in [512, 768, 1024, 2048, 4096]:
+  data2save = []
 
-  try:
-    data_bigfrag = biggest_fragment('Data_nueva/Degree{}_F{}.dat'.format(N,F))
-    data_fragments = average_fragment('Data_nueva/Degree{}_F{}.dat'.format(N,F))
+  for N in [512, 768, 1024, 2048, 4096]:
+
+    try:
+      data_bigfrag = biggest_fragment('Data_nueva/Degree{}_F{}.dat'.format(N,F))
+      data_fragments = average_fragment('Data_nueva/Degree{}_F{}.dat'.format(N,F))
    
-    p = [b[0] for b in data_fragments]
+      p = [b[0] for b in data_fragments]
 
-    big_frag = [b[1]/N for b in data_bigfrag]
-    average_s = [b[1] for b in data_fragments]
+      big_frag = [b[1]/N for b in data_bigfrag]
+      average_s = [b[1] for b in data_fragments]
 
-    critical_index = sorted(range(len(p)), reverse = True, key = lambda x: average_s[x])[0]
-    critical_indexes = sorted(range(len(p)), reverse = True, key = lambda x: average_s[x])[:3]
+      critical_index = sorted(range(len(p)), reverse = True, key = lambda x: average_s[x])[0]
+      critical_indexes = sorted(range(len(p)), reverse = True, key = lambda x: average_s[x])[:3]
 
-    p_critical = np.average([p[i] for i in critical_indexes], weights = [average_s[i] for i in critical_indexes])
-    big_frag_critical = np.average([big_frag[i] for i in critical_indexes], weights = [average_s[i] for i in critical_indexes])
-    average_s_critical = np.average([average_s[i] for i in critical_indexes], weights = [average_s[i] for i in critical_indexes])
+      p_critical = np.average([p[i] for i in critical_indexes], weights = [average_s[i] for i in critical_indexes])
+      big_frag_critical = np.average([big_frag[i] for i in critical_indexes], weights = [average_s[i] for i in critical_indexes])
+      average_s_critical = np.average([average_s[i] for i in critical_indexes], weights = [average_s[i] for i in critical_indexes])
 
-    data2save.append([N, p_critical, big_frag_critical, average_s_critical, critical_index])
+      data2save.append([N, p_critical, big_frag_critical, average_s_critical, critical_index])
 
-  except:
-    pass
+    except:
+      pass
 
-
-df = pd.DataFrame()
-df['N'] = [d[0] for d in data2save]
-df['Q'] = [d[1] for d in data2save]
-df['bigfrag'] = [d[2] for d in data2save]
-df['averagefrag'] = [d[3] for d in data2save]
-df['critical_index'] = [d[4] for d in data2save]
-df.to_csv('Data_processed/Critical_values_F{}.csv'.format(F), index = False)
+  df = pd.DataFrame()
+  df['N'] = [d[0] for d in data2save]
+  df['Q'] = [d[1] for d in data2save]
+  df['bigfrag'] = [d[2] for d in data2save]
+  df['averagefrag'] = [d[3] for d in data2save]
+  df['critical_index'] = [d[4] for d in data2save]
+  df.to_csv('Data_processed/Critical_values_F{}.csv'.format(F), index = False)
 

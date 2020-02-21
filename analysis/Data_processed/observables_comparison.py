@@ -2,56 +2,72 @@ import pandas as pd
 import matplotlib.pyplot as plt
     
 observables_er = pd.read_csv('Critical_values_ER.csv', header = 0)
-Fs = [10, 20, 100]
-color_dict = {10: 'r', 20: 'b', 100: 'm'}
+Fs = [10, 25, 50, 100]#, 250, 1000]
+color_dict = {10: 'b', 25: 'g', 50: 'm', 100: 'r'}
 q2p = lambda q,f: 1.00 - (1.00 - 1.00/q)**f
 
-plt.figure(1, figsize = (5,3))
-plt.axes([0.20, 0.25, 0.70, 0.65])
-plt.plot(observables_er['N'], observables_er['p'], '.-', markersize = 15, alpha = 0.75, color = 'k', label = 'ER')
+fig = plt.figure(1, figsize = (5,3))
+ax = plt.axes([0.20, 0.20, 0.70, 0.70])
+ax.plot(observables_er['N'], observables_er['p'], '.-', markersize = 15, alpha = 0.75, color = 'k', label = 'ER')
 for F in Fs:
 
     observables_f = pd.read_csv('Critical_values_F{}.csv'.format(F), header = 0)
 
-    plt.plot(observables_f['N'], q2p(observables_f['Q'], F), '.-', markersize = 15, alpha = 0.75, color = color_dict[F], label = 'F = {}'.format(F))
+    ax.plot(observables_f['N'], q2p(observables_f['Q'], F), '.-', markersize = 15, alpha = 0.75, color = color_dict[F], label = 'F = {}'.format(F))
 
-plt.grid(alpha = 0.15)
-plt.ylabel(r'$p_c(N)$', size = 15)
-plt.xlabel(r'$N$', size = 15)
-plt.xticks(size = 12)
-plt.yticks(size = 12)
-plt.legend(loc = 'best', fontsize = 10)
+ax.set_ylabel(r'$p_{int}^c(N)$', size = 20)
+ax.set_xlabel(r'$N$', size = 25)
+ax.set_xscale('symlog')
+ax.set_xticks([512, 768, 1024, 2048, 4096])
+ax.set_xticklabels([512, 768, 1024, 2048, 4096], size = 12)
+ax.minorticks_off()
+ax.xaxis.set_label_coords(1.075, 0.00)
+ax.legend(loc = 'best', fontsize = 10)
+ax.grid(alpha = 0.15)
+ax.set_xlim([450, 4500])
+plt.savefig('pc_N.png', dpi = 600)
 
-plt.figure(2, figsize = (5,3))
-plt.axes([0.20, 0.25, 0.70, 0.65])
-plt.plot(observables_er['N'], observables_er['bigfrag'], '.-', markersize = 15, alpha = 0.75, color = 'k', label = 'ER')
+fig = plt.figure(2, figsize = (5,3))
+ax = plt.axes([0.20, 0.20, 0.70, 0.70])
+ax.plot(observables_er['N'], observables_er['bigfrag'], '.-', markersize = 15, alpha = 0.75, color = 'k', label = 'ER')
 for F in Fs:
 
     observables_f = pd.read_csv('Critical_values_F{}.csv'.format(F), header = 0)
 
-    plt.plot(observables_f['N'], observables_f['bigfrag'], '.-', markersize = 15, alpha = 0.75, color = color_dict[F], label = 'F = {}'.format(F))
+    ax.plot(observables_f['N'], observables_f['bigfrag'], '.-', markersize = 15, alpha = 0.75, color = color_dict[F], label = 'F = {}'.format(F))
 
-plt.grid(alpha = 0.15)
-plt.ylabel(r'$S_{max}/N$', size = 15)
-plt.xlabel(r'$N$', size = 15)
-plt.xticks(size = 12)
-plt.yticks(size = 12)
-plt.legend(loc = 'best', fontsize = 10)
+ax.set_ylabel(r'$S_{max}^c/N$', size = 20)
+ax.set_xlabel(r'$N$', size = 25)
+ax.set_xscale('symlog')
+ax.set_xticks([512, 768, 1024, 2048, 4096])
+ax.set_xticklabels([512, 768, 1024, 2048, 4096], size = 12)
+ax.minorticks_off()
+ax.xaxis.set_label_coords(1.075, 0.00)
+ax.grid(alpha = 0.15)
+ax.set_xlim([450, 4500])
+plt.savefig('Smaxc_N.png', dpi = 600)
 
-plt.figure(3, figsize = (5,3))
-plt.axes([0.20, 0.25, 0.70, 0.65])
-plt.plot(observables_er['N'], observables_er['averagefrag'], '.-', markersize = 15, alpha = 0.75, color = 'k', label = 'ER')
+
+fig = plt.figure(3, figsize = (5,3))
+ax = plt.axes([0.20, 0.20, 0.70, 0.70])
+ax.plot(observables_er['N'], observables_er['averagefrag'], '.-', markersize = 15, alpha = 0.75, color = 'k', label = 'ER')
 for F in Fs:
 
     observables_f = pd.read_csv('Critical_values_F{}.csv'.format(F), header = 0)
 
-    plt.plot(observables_f['N'], observables_f['averagefrag'], '.-', markersize = 15, alpha = 0.75, color = color_dict[F], label = 'F = {}'.format(F))
+    ax.plot(observables_f['N'], observables_f['averagefrag'], '.-', markersize = 15, alpha = 0.75, color = color_dict[F], label = 'F = {}'.format(F))
 
-plt.grid(alpha = 0.15)
-plt.ylabel(r'$\langle s \rangle$', size = 15)
-plt.xlabel(r'$N$', size = 15)
-plt.xticks(size = 12)
-plt.yticks(size = 12)
-plt.legend(loc = 'best', fontsize = 10)
+
+ax.set_ylabel(r'$\langle s \rangle^c$', size = 20)
+ax.set_xlabel(r'$N$', size = 25)
+ax.set_xscale('symlog')
+ax.set_xticks([512, 768, 1024, 2048, 4096])
+ax.set_xticklabels([512, 768, 1024, 2048, 4096], size = 12)
+ax.set_yticklabels(range(2, 13, 2), size = 12)
+ax.minorticks_off()
+ax.xaxis.set_label_coords(1.075, 0.00)
+ax.grid(alpha = 0.15)
+ax.set_xlim([450, 4500])
+plt.savefig('sc_N.png', dpi = 600)
 
 plt.show()

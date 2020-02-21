@@ -9,3 +9,4 @@ data*
 *.dat
 *.png
 env/*
+analysis/*
